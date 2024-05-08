@@ -17,7 +17,7 @@ public class ConfigManager {
 
     private void initProperties() {
         InputStream inputStreamGameProperties = Main.class.getClassLoader().getResourceAsStream("config.properties");
-        InputStream inputStreamIdiomProperties = Main.class.getClassLoader().getResourceAsStream("IdiomConfig.properties");
+        InputStream inputStreamIdiomProperties = Main.class.getClassLoader().getResourceAsStream("languageConfig.properties");
         try {
             gameProperties.load(inputStreamGameProperties);
             idiomProperties.load(inputStreamIdiomProperties);

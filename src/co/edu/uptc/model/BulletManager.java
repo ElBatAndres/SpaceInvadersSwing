@@ -10,20 +10,20 @@ import java.util.List;
 public class BulletManager {
 
     private ArrayList<BulletPojo> bulletPojoList;
-    private List<BulletPojo> bulletPojosList = Collections.synchronizedList(new ArrayList<>());
+    private final List<BulletPojo> bulletPojoSync = Collections.synchronizedList(new ArrayList<>());
 
     public BulletManager(){
         bulletPojoList = new ArrayList<>();
     }
 
     public void addBullet(BulletPojo bulletPojo){
-        synchronized (bulletPojosList) {
+        synchronized (bulletPojoSync) {
             bulletPojoList.add(bulletPojo);
         }
     }
 
     public void updateBulletsPosition(){
-        synchronized (bulletPojosList) {
+        synchronized (bulletPojoSync) {
             for (BulletPojo bullet : bulletPojoList) {
                 bullet.setPositionY(bullet.getPositionY() - bullet.getSpeed());
             }
@@ -31,7 +31,7 @@ public class BulletManager {
     }
 
     public void verifyBulletsInScreen() {
-        synchronized (bulletPojosList) {
+        synchronized (bulletPojoSync) {
             Iterator<BulletPojo> iterator = bulletPojoList.iterator();
             while (iterator.hasNext()) {
                 BulletPojo bullet = iterator.next();

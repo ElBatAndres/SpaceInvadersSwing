@@ -16,6 +16,7 @@ public class GameManagement implements ContractPlay.Model {
     private AlienManager alienManager;
     private Chronometer chronometer;
     private int aliensKilled;
+    private int aliensSpawned;
 
     public GameManagement(){
         bulletManager = new BulletManager();
@@ -23,7 +24,7 @@ public class GameManagement implements ContractPlay.Model {
     }
 
     public void startTimer(){
-        int period = Integer.parseInt(ConfigManager.getProperty("timerPeriod"));
+        int period = Integer.parseInt(ConfigManager.getGameProperty("timerPeriod"));
         chronometer = new Chronometer();
         chronometer.getTimer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -34,32 +35,16 @@ public class GameManagement implements ContractPlay.Model {
         }, 0, period);
     }
 
-    public String getPlayTime(){
-        return chronometer.getTime();
-    }
-
     public void createBulletThread(){
-        Thread bulletThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    SleepThread.sleep(5);
-                    bulletManager.updateBulletsPosition();
-                    presenter.updateBullets();
-                }
+        int refresh = Integer.parseInt(ConfigManager.getGameProperty("refreshBulletTime"));
+        Thread bulletThread = new Thread(() -> {
+            while (true){
+                SleepThread.sleep(refresh);
+                bulletManager.updateBulletsPosition();
+                presenter.updateBullets();
             }
         });
         bulletThread.start();
-    }
-
-    public void addBullet(){
-        bulletManager.addBullet(presenter.getBulletInfo());
-    }
-
-    public ArrayList<BulletPojo> getBulletsList(){
-        bulletManager.verifyBulletsInScreen();
-        verifyStrikeByElements();
-        return bulletManager.getBulletPojoList();
     }
 
     public synchronized void verifyStrikeByElements() {
@@ -82,27 +67,52 @@ public class GameManagement implements ContractPlay.Model {
         alienManager.setAlienPojoList(alienList);
     }
 
-    private synchronized boolean verifyCollision(AlienPojo alien, BulletPojo bulletPojo) {
+    private boolean verifyCollision(AlienPojo alien, BulletPojo bulletPojo) {
         Rectangle alienRect = new Rectangle(alien.getPositionX(), alien.getPositionY(), alien.getWidth(), alien.getHeight());
         Rectangle bulletRect = new Rectangle(bulletPojo.getPositionX(), bulletPojo.getPositionY(), bulletPojo.getWidth(), bulletPojo.getHeight());
         return alienRect.intersects(bulletRect);
     }
 
     public void createAlienUpdateThread(){
-        Thread alienUpdateThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    SleepThread.sleep(7);
-                    updateAllAliensPosition();
-                    presenter.updateAliens();
-                }
+        int refresh = Integer.parseInt(ConfigManager.getGameProperty("refreshAliensTime"));
+        Thread alienUpdateThread = new Thread(() -> {
+            while (true){
+                SleepThread.sleep(refresh);
+                updateAllAliensPosition();
+                presenter.updateAliens();
             }
         });
         alienUpdateThread.start();
     }
 
-    public ArrayList<AlienPojo> getAliensList(){
+    public void createAlienAdditionThread(){
+        Random random = new Random();
+        int alienSpawnMaxTime = Integer.parseInt(ConfigManager.getGameProperty("alienSpawnMaxTime"));
+        int alienSpawnMinTime = Integer.parseInt(ConfigManager.getGameProperty("alienSpawnMinTime"));
+        Thread alienAddThread = new Thread(() -> {
+            while (true){
+                SleepThread.sleep(random.nextInt(alienSpawnMaxTime - alienSpawnMinTime + 1) + alienSpawnMinTime);
+                addNewAlien();
+            }
+        });
+        alienAddThread.start();
+    }
+
+    public String getPlayTime(){
+        return chronometer.getTime();
+    }
+
+    public synchronized void addBullet(){
+        bulletManager.addBullet(presenter.getBulletInfo());
+    }
+
+    public synchronized ArrayList<BulletPojo> getBulletsList(){
+        bulletManager.verifyBulletsInScreen();
+        verifyStrikeByElements();
+        return bulletManager.getBulletPojoList();
+    }
+
+    public synchronized ArrayList<AlienPojo> getAliensList(){
         alienManager.verifyAliensInScreen();
         return alienManager.getAlienPojoList();
     }
@@ -111,23 +121,8 @@ public class GameManagement implements ContractPlay.Model {
         alienManager.updateAliensPosition();
     }
 
-    public void createAlienAdditionThread(){
-        Random random = new Random();
-        int alienSpawnMaxTime = Integer.parseInt(ConfigManager.getProperty("alienSpawnMaxTime"));
-        int alienSpawnMinTime = Integer.parseInt(ConfigManager.getProperty("alienSpawnMinTime"));
-        Thread alienAddThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    SleepThread.sleep(random.nextInt(alienSpawnMaxTime - alienSpawnMinTime + 1) + alienSpawnMinTime);
-                    addNewAlien();
-                }
-            }
-        });
-        alienAddThread.start();
-    }
-
     private synchronized void addNewAlien(){
+        aliensSpawned++;
         alienManager.addAlien(presenter.createRandomAlien());
     }
 
@@ -136,7 +131,7 @@ public class GameManagement implements ContractPlay.Model {
     }
 
     public int getAliensOnGame() {
-        return alienManager.getAlienPojoList().size();
+        return aliensSpawned;
     }
 
     @Override

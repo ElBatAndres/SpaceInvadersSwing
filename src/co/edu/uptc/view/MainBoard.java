@@ -2,19 +2,18 @@ package co.edu.uptc.view;
 
 import co.edu.uptc.pojos.CannonPojo;
 import co.edu.uptc.presenter.ContractPlay;
-import co.edu.uptc.utils.ConfigManager;
+import co.edu.uptc.utils.ComponentsConstants;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class MainView extends JFrame implements ContractPlay.View {
+public class MainBoard extends JFrame implements ContractPlay.View {
 
     protected ContractPlay.Presenter presenter;
-    private ScorePanel scorePanel;
-    private GamePanel gamePanel;
-    private KeyConfirmationDialog keyDialog;
+    private ScoreBoard scorePanel;
+    private GameBoard gamePanel;
 
-    public MainView(){
+    public MainBoard(){
         initFrame();
     }
 
@@ -28,21 +27,21 @@ public class MainView extends JFrame implements ContractPlay.View {
     }
 
     public void createScorePanel(){
-        scorePanel = new ScorePanel(this);
+        scorePanel = new ScoreBoard(this);
         presenter.startTimer();
     }
 
     public void createGamePanel(){
-        gamePanel = new GamePanel(this);
+        gamePanel = new GameBoard(this);
     }
 
     public void createDialog(){
-        keyDialog = new KeyConfirmationDialog(this);
+        new KeyConfirmationDialog(this);
     }
 
     public void initFrame(){
         this.setTitle("Space Invaders");
-        this.setSize(Integer.parseInt(ConfigManager.getProperty("windowWidth")), Integer.parseInt(ConfigManager.getProperty("windowHeight")));
+        this.setSize(ComponentsConstants.WINDOW_WIDTH, ComponentsConstants.WINDOW_HEIGHT);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);

@@ -9,15 +9,15 @@ import java.awt.event.KeyEvent;
 
 public class KeyConfirmationDialog extends JDialog {
 
-    private MainView mainView;
+    private MainBoard mainBoard;
     private JLabel keyRequestLbl;
     private JButton keyConfirmationBtn;
     private JLabel keyConfirmationLbl;
     private int keyCode;
 
-    public KeyConfirmationDialog(MainView mainView){
-        super(mainView, true);
-        this.mainView = mainView;
+    public KeyConfirmationDialog(MainBoard mainBoard){
+        super(mainBoard, true);
+        setMainBoard(mainBoard);
         initDialog();
         initComponents();
         this.setVisible(true);
@@ -25,19 +25,39 @@ public class KeyConfirmationDialog extends JDialog {
 
     private void initDialog() {
         this.setLayout(new GridBagLayout());
-        this.setTitle("Confirmacion");
-        this.setSize(Integer.parseInt(ConfigManager.getProperty("confirmationDialogWidth")),Integer.parseInt(ConfigManager.getProperty("confirmationDialogHeight")));
+        this.setTitle(ConfigManager.getIdiomProperty("keyConfirmationDialogTitle"));
+        this.setSize(Integer.parseInt(ConfigManager.getGameProperty("confirmationDialogWidth")),Integer.parseInt(ConfigManager.getGameProperty("confirmationDialogHeight")));
         this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(new Color(69, 129, 218));
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addKeyListeners();
+        addListener();
     }
 
     private void initComponents(){
-        keyRequestLbl = new JLabel("Ingrese una tecla para disparar");
+        createKeyRequest();
+        createKeyConfirmationBtn();
+        createKeyConfirmationLbl();
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.insets = new Insets(5,0,5,0);
+        gbc.gridy = 0;
+        this.add(keyRequestLbl,gbc);
+
+        gbc.gridy = 1;
+        this.add(keyConfirmationLbl,gbc);
+
+        gbc.gridy = 2;
+        this.add(keyConfirmationBtn,gbc);
+    }
+
+    private void createKeyRequest() {
+        keyRequestLbl = new JLabel(ConfigManager.getIdiomProperty("keyRequestMsg"));
         keyRequestLbl.setFont(new Font("", Font.BOLD, 20));
         keyRequestLbl.setForeground(new Color(0, 0, 0));
-        keyConfirmationBtn = new JButton("Hecho"){
+    }
+
+    private void createKeyConfirmationBtn(){
+        keyConfirmationBtn = new JButton(ConfigManager.getIdiomProperty("keyConfirmationMsg")){
             @Override
             protected void paintComponent(Graphics g) {
                 g.fillRect(0,0,getWidth(),getHeight());
@@ -53,28 +73,20 @@ public class KeyConfirmationDialog extends JDialog {
         keyConfirmationBtn.setFont(new Font("", Font.BOLD, 20));
         keyConfirmationBtn.addActionListener(e -> {
             if (keyCode != 0){
-                mainView.setShotKeyCode(keyCode);
+                mainBoard.setShotKeyCode(keyCode);
                 dispose();
             }
         });
         keyConfirmationBtn.setEnabled(false);
+    }
+
+    private void createKeyConfirmationLbl(){
         keyConfirmationLbl = new JLabel("\u200E");
         keyConfirmationLbl.setFont(new Font("", Font.BOLD, 20));
         keyConfirmationLbl.setForeground(new Color(255, 255, 255));
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        gbc.insets = new Insets(5,0,5,0);
-        gbc.gridy = 0;
-        this.add(keyRequestLbl,gbc);
-
-        gbc.gridy = 1;
-        this.add(keyConfirmationLbl,gbc);
-
-        gbc.gridy = 2;
-        this.add(keyConfirmationBtn,gbc);
     }
 
-    private void addKeyListeners(){
+    private void addListener(){
         this.setFocusable(true);
         this.addKeyListener(new KeyAdapter() {
             @Override
@@ -84,5 +96,9 @@ public class KeyConfirmationDialog extends JDialog {
                 keyConfirmationLbl.setText(KeyEvent.getKeyText(keyCode));
             }
         });
+    }
+
+    public void setMainBoard(MainBoard mainBoard) {
+        this.mainBoard = mainBoard;
     }
 }

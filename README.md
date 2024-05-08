@@ -8,7 +8,7 @@ alienígenas y el tiempo de juego.
 
 ## Requisitos del Sistema:
 
-- Java 17
+- Jdk 17
 - Windows 11
 
 ## Fucionamieto
@@ -21,7 +21,7 @@ de batalla.
 
 ## Configuraciones
 
-Para modificar las configuraciones del juego, por ejemplo velocidad de las balas, aliens o cañon, se encuentra un archivo **properties** dentro de
+Para modificar las configuraciones del juego, por ejemplo velocidad de las balas, aliens o cañon, se encuentra el archivo **config.properties** dentro de
 la carpeta **src**. Entre las distintas configuraciones se encuentran:
 
 - Tamaño de la ventana, aliens, balas y cañon
